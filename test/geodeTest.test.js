@@ -45,7 +45,7 @@ describe("Geode Test", () => {
   });
 
   it("Should get ERC1155 address from Geode Swap contract set by attacker", async () => {
-    const swap = await ethers.getContractAt("IGEODE", geodeSwap);
+    const swap = await ethers.getContractAt("IGEODESWAP", geodeSwap);
     let address = await swap.getERC1155();
 
     console.log(address);
@@ -53,7 +53,7 @@ describe("Geode Test", () => {
   });
 
   it("Should get amplification coefficient from Geode Swap contract set by attacker", async () => {
-    const swap = await ethers.getContractAt("IGEODE", geodeSwap);
+    const swap = await ethers.getContractAt("IGEODESWAP", geodeSwap);
     let _a = await swap.getA();
 
     console.log(_a);
@@ -61,7 +61,7 @@ describe("Geode Test", () => {
   });
 
   it("Should get id of the pooled gAvax token from Geode Swap contract set by attacker", async () => {
-    const swap = await ethers.getContractAt("IGEODE", geodeSwap);
+    const swap = await ethers.getContractAt("IGEODESWAP", geodeSwap);
     let id = await swap.getToken();
 
     console.log(id);
@@ -70,6 +70,17 @@ describe("Geode Test", () => {
 
   it("Should revert on second call to initialize function", async () => {
     await expect(attack.callInitialize()).to.be.reverted;
+  });
+
+
+  it("Should call initialize function for lp in Geode Swap contract", async () => {
+    gAVAX = attack.address;
+    await attack.callinitToken();
+  });
+
+  it("Should call initialize function for proxy in Geode Swap contract", async () => {
+    gAVAX = attack.address;
+    await attack.callinitProxy();
   });
 
 });
